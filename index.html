@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cours Particuliers de Mathématiques - Zaid El Mokhtari</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>Zaid El Mokhtari</h1>
+                <p>Professeur de Mathématiques</p>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#accueil">Accueil</a></li>
+                <li><a href="#apropos">À propos</a></li>
+                <li><a href="#tarifs">Tarifs</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="accueil" class="hero">
+            <div class="hero-content">
+                <h2>Cours Particuliers de Mathématiques</h2>
+                <p>Étudiant à l'École Centrale Lyon, je propose des cours particuliers de mathématiques adaptés à votre niveau</p>
+                <a href="#contact" class="cta-button">Contactez-moi</a>
+            </div>
+            <div class="hero-image">
+                <div class="math-illustration">
+                    <span class="math-symbol">∫</span>
+                    <span class="math-symbol">∑</span>
+                    <span class="math-symbol">π</span>
+                    <span class="math-symbol">∞</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="apropos" class="about">
+            <div class="container">
+                <h2>À propos de moi</h2>
+                <div class="about-content">
+                    <div class="about-text">
+                        <h3>Mon parcours</h3>
+                        <p>Je suis actuellement étudiant à l'<strong>École Centrale Lyon</strong>, une des plus prestigieuses écoles d'ingénieurs françaises.</p>
+                        
+                        <h3>Expérience en compétitions</h3>
+                        <p>J'ai participé aux <strong>Olympiades de Mathématiques</strong> durant mes années de lycée, ce qui m'a permis de développer une approche rigoureuse et créative des mathématiques.</p>
+                        
+                        <h3>Encadrement d'élèves</h3>
+                        <p>J'ai eu l'honneur d'encadrer des élèves qui ont représenté le <strong>Maroc aux Olympiades Internationales de Mathématiques</strong>, une expérience qui m'a appris l'importance de la pédagogie adaptée.</p>
+                        
+                        <h3>Formation académique</h3>
+                        <p>J'ai suivi une <strong>classe préparatoire MPSI/MP*</strong> (Mathématiques, Physique et Sciences de l'Ingénieur), ce qui m'a donné une solide base dans les mathématiques avancées.</p>
+                    </div>
+                    <div class="about-stats">
+                        <div class="stat">
+                            <h4>5+</h4>
+                            <p>Années d'expérience</p>
+                        </div>
+                        <div class="stat">
+                            <h4>100%</h4>
+                            <p>Réussite aux examens</p>
+                        </div>
+                        <div class="stat">
+                            <h4>50+</h4>
+                            <p>Élèves accompagnés</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tarifs" class="pricing">
+            <div class="container">
+                <h2>Tarifs</h2>
+                <div class="pricing-cards">
+                    <div class="pricing-card">
+                        <h3>Collège</h3>
+                        <div class="price">20€<span>/heure</span></div>
+                        <ul>
+                            <li>Algèbre de base</li>
+                            <li>Géométrie</li>
+                            <li>Arithmétique</li>
+                            <li>Préparation au brevet</li>
+                        </ul>
+                        <button class="contact-btn" onclick="openContactForm('college')">Réserver</button>
+                    </div>
+                    
+                    <div class="pricing-card featured">
+                        <h3>Lycée</h3>
+                        <div class="price">25€<span>/heure</span></div>
+                        <ul>
+                            <li>Analyse</li>
+                            <li>Probabilités</li>
+                            <li>Géométrie dans l'espace</li>
+                            <li>Préparation au baccalauréat</li>
+                        </ul>
+                        <button class="contact-btn" onclick="openContactForm('lycee')">Réserver</button>
+                    </div>
+                    
+                    <div class="pricing-card">
+                        <h3>Classe Préparatoire</h3>
+                        <div class="price">30€<span>/heure</span></div>
+                        <ul>
+                            <li>Mathématiques supérieures</li>
+                            <li>Mathématiques spéciales</li>
+                            <li>Préparation aux concours</li>
+                            <li>Accompagnement personnalisé</li>
+                        </ul>
+                        <button class="contact-btn" onclick="openContactForm('prepa')">Réserver</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact">
+            <div class="container">
+                <h2>Contact</h2>
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <h3>Informations de contact</h3>
+                        <div class="contact-item">
+                            <span class="icon">📧</span>
+                            <div>
+                                <strong>Email :</strong>
+                                <p>zaid.el-mokhtari@etu.ec-lyon.fr</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <span class="icon">📱</span>
+                            <div>
+                                <strong>Téléphone :</strong>
+                                <p id="phone-number">Numéro à venir</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <span class="icon">🎓</span>
+                            <div>
+                                <strong>École :</strong>
+                                <p>École Centrale Lyon</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-form">
+                        <h3>Envoyez-moi un message</h3>
+                        <form id="contactForm">
+                            <div class="form-group">
+                                <label for="name">Nom :</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email :</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="niveau">Niveau :</label>
+                                <select id="niveau" name="niveau" required>
+                                    <option value="">Sélectionnez votre niveau</option>
+                                    <option value="college">Collège</option>
+                                    <option value="lycee">Lycée</option>
+                                    <option value="prepa">Classe Préparatoire</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="message">Message :</label>
+                                <textarea id="message" name="message" rows="5" required></textarea>
+                            </div>
+                            <button type="submit">Envoyer</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Zaid El Mokhtari - Cours Particuliers de Mathématiques</p>
+            <p>Étudiant à l'École Centrale Lyon</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
