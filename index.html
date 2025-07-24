@@ -188,13 +188,12 @@
     <!-- EmailJS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
-    <!-- Script modifié pour EmailJS -->
     <script>
         // Configuration EmailJS - REMPLACEZ PAR VOS VRAIES CLÉS
         const EMAIL_CONFIG = {
-            serviceID: 'YOUR_SERVICE_ID',      // À remplacer
-            templateID: 'YOUR_TEMPLATE_ID',    // À remplacer
-            publicKey: 'YOUR_PUBLIC_KEY'       // À remplacer
+            serviceID: 'service_tlz3si5',      // À remplacer
+            templateID: 'template_1icprfw',    // À remplacer
+            publicKey: '8GgbqTeh3zyHO3Fm2'       // À remplacer
         };
 
         // Initialiser EmailJS
@@ -253,17 +252,27 @@
             };
             const formattedDate = now.toLocaleDateString('fr-FR', dateOptions);
             
-            // Préparer les données pour EmailJS
+            // Traduire les niveaux
+            const niveauLabels = {
+                'college': 'Collège',
+                'lycee': 'Lycée',
+                'prepa': 'Classe Préparatoire'
+            };
+            
+            // Préparer les données pour EmailJS avec TOUS les champs nécessaires
             const templateParams = {
                 from_name: data.name,
                 from_email: data.email,
-                niveau: data.niveau,
+                niveau: niveauLabels[data.niveau] || data.niveau,
                 message: data.message,
                 to_email: 'zaid.el-mokhtari@etu.ec-lyon.fr',
-                sent_date: formattedDate
+                sent_date: formattedDate,
+                // Ajouter d'autres variables qui pourraient être dans votre template
+                reply_to: data.email,
+                subject: `Nouveau message de ${data.name} - Cours ${niveauLabels[data.niveau] || data.niveau}`
             };
             
-            console.log('Envoi des données:', templateParams); // Pour débugger
+            console.log('Données envoyées à EmailJS:', templateParams);
             
             // Envoyer avec EmailJS
             emailjs.send(EMAIL_CONFIG.serviceID, EMAIL_CONFIG.templateID, templateParams)
