@@ -192,9 +192,9 @@
     <script>
         // Configuration EmailJS - REMPLACEZ PAR VOS VRAIES CLÉS
         const EMAIL_CONFIG = {
-            serviceID: 'service_tlz3si5',      // À remplacer
-            templateID: 'template_1icprfw',    // À remplacer
-            publicKey: '8GgbqTeh3zyHO3Fm2'       // À remplacer
+            serviceID: 'YOUR_SERVICE_ID',      // À remplacer
+            templateID: 'YOUR_TEMPLATE_ID',    // À remplacer
+            publicKey: 'YOUR_PUBLIC_KEY'       // À remplacer
         };
 
         // Initialiser EmailJS
@@ -238,7 +238,14 @@
                 from_email: data.email,
                 niveau: data.niveau,
                 message: data.message,
-                to_email: 'zaid.el-mokhtari@etu.ec-lyon.fr'
+                to_email: 'zaid.el-mokhtari@etu.ec-lyon.fr',
+                sent_date: new Date().toLocaleString('fr-FR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })
             };
             
             // Envoyer avec EmailJS
