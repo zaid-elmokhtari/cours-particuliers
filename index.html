@@ -218,6 +218,14 @@
         document.getElementById('contactForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // Vérifier que EmailJS est configuré
+            if (EMAIL_CONFIG.serviceID === 'YOUR_SERVICE_ID' || 
+                EMAIL_CONFIG.templateID === 'YOUR_TEMPLATE_ID' || 
+                EMAIL_CONFIG.publicKey === 'YOUR_PUBLIC_KEY') {
+                showMessage('Erreur de configuration EmailJS. Veuillez configurer vos clés.', 'error');
+                return;
+            }
+            
             const formData = new FormData(this);
             const data = {
                 name: formData.get('name'),
@@ -232,6 +240,19 @@
             submitButton.textContent = 'Envoi en cours...';
             submitButton.disabled = true;
             
+            // Créer la date formatée en français
+            const now = new Date();
+            const dateOptions = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'Europe/Paris'
+            };
+            const formattedDate = now.toLocaleDateString('fr-FR', dateOptions);
+            
             // Préparer les données pour EmailJS
             const templateParams = {
                 from_name: data.name,
@@ -239,14 +260,10 @@
                 niveau: data.niveau,
                 message: data.message,
                 to_email: 'zaid.el-mokhtari@etu.ec-lyon.fr',
-                sent_date: new Date().toLocaleString('fr-FR', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                })
+                sent_date: formattedDate
             };
+            
+            console.log('Envoi des données:', templateParams); // Pour débugger
             
             // Envoyer avec EmailJS
             emailjs.send(EMAIL_CONFIG.serviceID, EMAIL_CONFIG.templateID, templateParams)
@@ -257,7 +274,13 @@
                 })
                 .catch(function(error) {
                     console.log('FAILED...', error);
-                    showMessage('Erreur lors de l\'envoi du message. Veuillez réessayer.', 'error');
+                    console.error('Détails de l\'erreur:', error);
+                    
+                    let errorMessage = 'Erreur lors de l\'envoi du message. ';
+                    if (error.text) {
+                        errorMessage += 'Détail: ' + error.text;
+                    }
+                    showMessage(errorMessage, 'error');
                 })
                 .finally(() => {
                     submitButton.textContent = originalText;
