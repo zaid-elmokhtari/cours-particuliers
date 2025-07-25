@@ -304,3 +304,273 @@ function showMessage(message, type) {
     
     fadeOutMessage(messageDiv);
 }
+// Variables globales pour l'admin
+let isAdminLoggedIn = false;
+let currentResources = [];
+
+// Vérifier le statut admin au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    checkAdminStatus();
+    loadResources();
+    initializeAdminFeatures();
+});
+
+function checkAdminStatus() {
+    fetch('/admin/check')
+        .then(response => response.json())
+        .then(data => {
+            isAdminLoggedIn = data.admin;
+            updateAdminUI();
+        })
+        .catch(error => console.error('Erreur vérification admin:', error));
+}
+
+function updateAdminUI() {
+    const adminSection = document.getElementById('admin-section');
+    const adminLink = document.getElementById('admin-login-link');
+    
+    if (isAdminLoggedIn) {
+        adminSection.style.display = 'block';
+        adminLink.textContent = 'Déconnexion';
+        adminLink.classList.add('admin-indicator');
+    } else {
+        adminSection.style.display = 'none';
+        adminLink.textContent = 'Admin';
+        adminLink.classList.remove('admin-indicator');
+    }
+}
+
+function initializeAdminFeatures() {
+    // Modal admin
+    const adminModal = document.getElementById('admin-login-modal');
+    const adminLink = document.getElementById('admin-login-link');
+    const closeModal = document.querySelector('.close-admin-modal');
+    const cancelBtn = document.querySelector('.admin-cancel-btn');
+
+    adminLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (isAdminLoggedIn) {
+            adminLogout();
+        } else {
+            adminModal.style.display = 'flex';
+        }
+    });
+
+    closeModal.addEventListener('click', () => {
+        adminModal.style.display = 'none';
+    });
+
+    cancelBtn.addEventListener('click', () => {
+        adminModal.style.display = 'none';
+    });
+
+    // Formulaire de connexion admin
+    document.getElementById('admin-login-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        adminLogin();
+    });
+
+    // Formulaire d'upload
+    document.getElementById('upload-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        uploadCourse();
+    });
+
+    // Filtres de ressources
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            filterResources(this.dataset.niveau);
+        });
+    });
+}
+
+function adminLogin() {
+    const username = document.getElementById('admin-username').value;
+    const password = document.getElementById('admin-password').value;
+    const errorDiv = document.getElementById('admin-login-error');
+    const submitBtn = document.querySelector('.admin-login-btn');
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Connexion...';
+
+    fetch('/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            isAdminLoggedIn = true;
+            updateAdminUI();
+            document.getElementById('admin-login-modal').style.display = 'none';
+            document.getElementById('admin-login-form').reset();
+            showMessage('Connexion administrateur réussie', 'success');
+        } else {
+            errorDiv.textContent = data.error;
+            errorDiv.style.display = 'block';
+        }
+    })
+    .catch(error => {
+        errorDiv.textContent = 'Erreur de connexion';
+        errorDiv.style.display = 'block';
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Se connecter';
+    });
+}
+
+function adminLogout() {
+    fetch('/admin/logout', { method: 'POST' })
+        .then(() => {
+            isAdminLoggedIn = false;
+            updateAdminUI();
+            showMessage('Déconnexion réussie', 'info');
+        });
+}
+
+function uploadCourse() {
+    const form = document.getElementById('upload-form');
+    const formData = new FormData(form);
+    const submitBtn = form.querySelector('.upload-btn');
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="loading-spinner"></span>Upload en cours...';
+
+    fetch('/admin/upload-cours', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage('Cours uploadé avec succès !', 'success');
+            form.reset();
+            loadResources();
+        } else {
+            showMessage(data.error, 'error');
+        }
+    })
+    .catch(error => {
+        showMessage('Erreur lors de l\'upload', 'error');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Uploader le cours';
+    });
+}
+
+function loadResources() {
+    fetch('/api/cours')
+        .then(response => response.json())
+        .then(data => {
+            currentResources = data;
+            displayResources(data);
+        })
+        .catch(error => {
+            console.error('Erreur chargement ressources:', error);
+        });
+}
+
+function displayResources(resources) {
+    const grid = document.getElementById('resources-grid');
+    
+    if (resources.length === 0) {
+        grid.innerHTML = '<div class="no-resources">Aucune ressource disponible pour le moment.</div>';
+        return;
+    }
+
+    grid.innerHTML = resources.map(resource => `
+        <div class="resource-card">
+            <div class="resource-header">
+                <h4>${resource.title}</h4>
+                <span class="resource-level ${resource.niveau}">${getLevelLabel(resource.niveau)}</span>
+            </div>
+            <div class="resource-info">
+                <div class="resource-category">${getCategoryLabel(resource.category)}</div>
+                <div class="resource-description">${resource.description || 'Aucune description'}</div>
+                <div class="resource-meta">
+                    <span>📅 ${formatDate(resource.upload_date)}</span>
+                    <span>📄 ${formatFileSize(resource.file_size)}</span>
+                </div>
+            </div>
+            <div class="resource-actions">
+                <button class="download-btn" onclick="downloadResource('${resource.filename}', '${resource.original_filename}')">
+                    Télécharger
+                </button>
+                ${isAdminLoggedIn ? `<button class="delete-btn" onclick="deleteResource('${resource.id}')">Supprimer</button>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+function filterResources(niveau) {
+    if (niveau === 'all') {
+        displayResources(currentResources);
+    } else {
+        const filtered = currentResources.filter(r => r.niveau === niveau);
+        displayResources(filtered);
+    }
+}
+
+function downloadResource(filename, originalFilename) {
+    const link = document.createElement('a');
+    link.href = `/download/${filename}`;
+    link.download = originalFilename;
+    link.click();
+}
+
+function deleteResource(resourceId) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette ressource ?')) {
+        return;
+    }
+
+    fetch(`/admin/delete-cours/${resourceId}`, { method: 'DELETE' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showMessage('Ressource supprimée avec succès', 'success');
+                loadResources();
+            } else {
+                showMessage(data.error, 'error');
+            }
+        })
+        .catch(error => {
+            showMessage('Erreur lors de la suppression', 'error');
+        });
+}
+
+// Fonctions utilitaires
+function getLevelLabel(niveau) {
+    const labels = {
+        'college': 'Collège',
+        'lycee': 'Lycée',
+        'prepa': 'Classe Préparatoire'
+    };
+    return labels[niveau] || niveau;
+}
+
+function getCategoryLabel(category) {
+    const labels = {
+        'cours': 'Cours',
+        'exercices': 'Exercices',
+        'corriges': 'Corrigés',
+        'examens': 'Examens'
+    };
+    return labels[category] || category;
+}
+
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString('fr-FR');
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
