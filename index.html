@@ -16,8 +16,10 @@
             <ul class="nav-links">
                 <li><a href="#accueil">Accueil</a></li>
                 <li><a href="#apropos">À propos</a></li>
+                <li><a href="#ressources">Ressources</a></li>
                 <li><a href="#tarifs">Tarifs</a></li>
                 <li><a href="#contact">Contact</a></li>
+                <li><a href="#" onclick="openAdminLogin()" class="admin-link">Admin</a></li>
             </ul>
         </nav>
     </header>
@@ -69,6 +71,70 @@
                             <h4>50+</h4>
                             <p>Élèves accompagnés</p>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Nouvelle section Ressources -->
+        <section id="ressources" class="resources">
+            <div class="container">
+                <h2>Ressources Pédagogiques</h2>
+                <p class="resources-intro">Téléchargez des cours, exercices et annales adaptés à votre niveau</p>
+                
+                <!-- Filtres -->
+                <div class="resource-filters">
+                    <button class="filter-btn active" data-filter="all">Tous</button>
+                    <button class="filter-btn" data-filter="college">Collège</button>
+                    <button class="filter-btn" data-filter="lycee">Lycée</button>
+                    <button class="filter-btn" data-filter="prepa">Classe Préparatoire</button>
+                </div>
+
+                <!-- Section d'upload pour admin -->
+                <div id="admin-upload-section" class="upload-section" style="display: none;">
+                    <h3>Ajouter une nouvelle ressource</h3>
+                    <form id="uploadForm" class="upload-form" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="upload-title">Titre :</label>
+                            <input type="text" id="upload-title" name="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="upload-level">Niveau :</label>
+                            <select id="upload-level" name="level" required>
+                                <option value="">Sélectionnez un niveau</option>
+                                <option value="college">Collège</option>
+                                <option value="lycee">Lycée</option>
+                                <option value="prepa">Classe Préparatoire</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="upload-category">Catégorie :</label>
+                            <select id="upload-category" name="category" required>
+                                <option value="">Sélectionnez une catégorie</option>
+                                <option value="cours">Cours</option>
+                                <option value="exercices">Exercices</option>
+                                <option value="annales">Annales</option>
+                                <option value="devoirs">Devoirs</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="upload-description">Description :</label>
+                            <textarea id="upload-description" name="description" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="upload-file">Fichier PDF :</label>
+                            <input type="file" id="upload-file" name="file" accept=".pdf" required>
+                            <span class="file-hint">Fichiers PDF uniquement (max 10MB)</span>
+                        </div>
+                        <button type="submit" class="upload-btn">Télécharger la ressource</button>
+                    </form>
+                </div>
+
+                <!-- Grille des ressources -->
+                <div class="resources-grid" id="resources-grid">
+                    <div class="no-resources">
+                        <p>Aucune ressource disponible pour le moment.</p>
+                        <p>Les cours seront bientôt disponibles !</p>
                     </div>
                 </div>
             </div>
@@ -178,6 +244,48 @@
         </section>
     </main>
 
+    <!-- Modal de connexion admin -->
+    <div id="admin-login-modal" class="admin-login-modal">
+        <div class="admin-login-content">
+            <div class="admin-login-header">
+                <h3>Connexion Administrateur</h3>
+                <button class="close-admin-modal" onclick="closeAdminLogin()">&times;</button>
+            </div>
+            <div class="admin-login-body">
+                <form id="adminLoginForm" class="admin-login-form">
+                    <div class="form-group">
+                        <label for="admin-username">Nom d'utilisateur :</label>
+                        <input type="text" id="admin-username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-password">Mot de passe :</label>
+                        <input type="password" id="admin-password" name="password" required>
+                    </div>
+                    <div class="admin-login-actions">
+                        <button type="submit" class="admin-login-btn">Se connecter</button>
+                        <button type="button" class="admin-cancel-btn" onclick="closeAdminLogin()">Annuler</button>
+                    </div>
+                </form>
+                <div class="secure-indicator">
+                    Connexion sécurisée SSL
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de prévisualisation PDF -->
+    <div id="pdf-modal" class="pdf-modal">
+        <div class="pdf-modal-content">
+            <div class="pdf-modal-header">
+                <h3 id="pdf-modal-title">Aperçu du document</h3>
+                <button class="close-modal" onclick="closePdfModal()">&times;</button>
+            </div>
+            <div class="pdf-viewer">
+                <iframe id="pdf-viewer-frame" src="" width="100%" height="100%"></iframe>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <div class="container">
             <p>&copy; 2024 Zaid El Mokhtari - Cours Particuliers de Mathématiques</p>
@@ -195,6 +303,9 @@
             templateID: 'template_1icprfw',    // À remplacer
             publicKey: '8GgbqTeh3zyHO3Fm2'       // À remplacer
         };
+
+        // Variable pour traquer l'état admin
+        let isAdminLoggedIn = false;
 
         // Initialiser EmailJS
         emailjs.init(EMAIL_CONFIG.publicKey);
@@ -236,7 +347,7 @@
             // Show loading state
             const submitButton = this.querySelector('button[type="submit"]');
             const originalText = submitButton.textContent;
-            submitButton.textContent = 'Envoi en cours...';
+            submitButton.innerHTML = '<span class="loading-spinner"></span>Envoi en cours...';
             submitButton.disabled = true;
             
             // Créer la date formatée en français
@@ -297,24 +408,348 @@
                 });
         });
 
+        // Gestion de la connexion admin
+        function openAdminLogin() {
+            document.getElementById('admin-login-modal').style.display = 'flex';
+        }
+
+        function closeAdminLogin() {
+            document.getElementById('admin-login-modal').style.display = 'none';
+            document.getElementById('adminLoginForm').reset();
+            // Effacer les erreurs
+            const errorDiv = document.querySelector('.admin-login-error');
+            if (errorDiv) errorDiv.remove();
+        }
+
+        // Formulaire de connexion admin
+        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const credentials = {
+                username: formData.get('username'),
+                password: formData.get('password')
+            };
+            
+            const submitButton = this.querySelector('.admin-login-btn');
+            const originalText = submitButton.textContent;
+            submitButton.innerHTML = '<span class="loading-spinner"></span>Connexion...';
+            submitButton.disabled = true;
+            
+            // Envoyer les données au serveur
+            fetch('/admin/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(credentials)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    isAdminLoggedIn = true;
+                    showMessage('Connexion réussie ! Interface admin activée.', 'success');
+                    closeAdminLogin();
+                    showAdminFeatures();
+                } else {
+                    showAdminError(data.error || 'Identifiants incorrects');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAdminError('Erreur de connexion au serveur');
+            })
+            .finally(() => {
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+            });
+        });
+
+        function showAdminError(message) {
+            // Supprimer l'erreur existante
+            const existingError = document.querySelector('.admin-login-error');
+            if (existingError) existingError.remove();
+            
+            // Créer la nouvelle erreur
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'admin-login-error';
+            errorDiv.textContent = message;
+            
+            const form = document.getElementById('adminLoginForm');
+            form.appendChild(errorDiv);
+        }
+
+        function showAdminFeatures() {
+            // Afficher la section d'upload
+            document.getElementById('admin-upload-section').style.display = 'block';
+            
+            // Ajouter un indicateur admin
+            const adminLink = document.querySelector('.admin-link');
+            adminLink.textContent = 'Admin ✓';
+            adminLink.classList.add('admin-indicator');
+            adminLink.onclick = () => {
+                isAdminLoggedIn = false;
+                hideAdminFeatures();
+                showMessage('Déconnexion admin réussie.', 'info');
+            };
+            
+            // Charger les ressources avec options admin
+            loadResources(true);
+        }
+
+        function hideAdminFeatures() {
+            // Masquer la section d'upload
+            document.getElementById('admin-upload-section').style.display = 'none';
+            
+            // Restaurer le lien admin
+            const adminLink = document.querySelector('.admin-link');
+            adminLink.textContent = 'Admin';
+            adminLink.classList.remove('admin-indicator');
+            adminLink.onclick = openAdminLogin;
+            
+            // Recharger les ressources sans options admin
+            loadResources(false);
+        }
+
+        // Gestion de l'upload de fichiers
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!isAdminLoggedIn) {
+                showMessage('Vous devez être connecté en tant qu\'admin.', 'error');
+                return;
+            }
+            
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('.upload-btn');
+            const originalText = submitButton.textContent;
+            
+            // Validation du fichier
+            const fileInput = document.getElementById('upload-file');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showMessage('Veuillez sélectionner un fichier PDF.', 'error');
+                return;
+            }
+            
+            if (file.type !== 'application/pdf') {
+                showMessage('Seuls les fichiers PDF sont acceptés.', 'error');
+                return;
+            }
+            
+            if (file.size > 10 * 1024 * 1024) { // 10MB
+                showMessage('Le fichier ne doit pas dépasser 10MB.', 'error');
+                return;
+            }
+            
+            submitButton.innerHTML = '<span class="loading-spinner"></span>Upload en cours...';
+            submitButton.disabled = true;
+            
+            // Envoyer le fichier
+            fetch('/admin/upload-resource', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('Ressource ajoutée avec succès !', 'success');
+                    this.reset();
+                    loadResources(true); // Recharger les ressources
+                } else {
+                    showMessage(data.error || 'Erreur lors de l\'upload', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('Erreur lors de l\'upload du fichier.', 'error');
+            })
+            .finally(() => {
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+            });
+        });
+
+        // Charger les ressources
+        function loadResources(showAdminOptions = false) {
+            fetch('/api/resources')
+            .then(response => response.json())
+            .then(resources => {
+                displayResources(resources, showAdminOptions);
+            })
+            .catch(error => {
+                console.error('Error loading resources:', error);
+                document.getElementById('resources-grid').innerHTML = 
+                    '<div class="no-resources"><p>Erreur lors du chargement des ressources.</p></div>';
+            });
+        }
+
+        // Afficher les ressources
+        function displayResources(resources, showAdminOptions = false) {
+            const grid = document.getElementById('resources-grid');
+            
+            if (!resources || resources.length === 0) {
+                grid.innerHTML = `
+                    <div class="no-resources">
+                        <p>Aucune ressource disponible pour le moment.</p>
+                        <p>Les cours seront bientôt disponibles !</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = resources.map(resource => `
+                <div class="resource-card" data-level="${resource.level}">
+                    <div class="resource-header">
+                        <h4>${resource.title}</h4>
+                        <span class="resource-level ${resource.level}">${getLevelLabel(resource.level)}</span>
+                    </div>
+                    <div class="resource-info">
+                        <div class="resource-category">${getCategoryLabel(resource.category)}</div>
+                        <div class="resource-description">${resource.description}</div>
+                        <div class="resource-meta">
+                            <span>Ajouté le ${formatDate(resource.upload_date)}</span>
+                            <span>${formatFileSize(resource.file_size)}</span>
+                        </div>
+                    </div>
+                    <div class="resource-actions">
+                        <button class="download-btn" onclick="downloadResource('${resource.filename}', '${resource.title}')">
+                            📥 Télécharger
+                        </button>
+                        <button class="preview-btn" onclick="previewResource('${resource.filename}', '${resource.title}')">
+                            👁️ Aperçu
+                        </button>
+                    </div>
+                    ${showAdminOptions ? `
+                        <button class="delete-btn" onclick="deleteResource('${resource.id}', '${resource.title}')">
+                            🗑️ Supprimer
+                        </button>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Fonctions utilitaires
+        function getLevelLabel(level) {
+            const labels = {
+                'college': 'Collège',
+                'lycee': 'Lycée',
+                'prepa': 'Classe Préparatoire'
+            };
+            return labels[level] || level;
+        }
+
+        function getCategoryLabel(category) {
+            const labels = {
+                'cours': 'Cours',
+                'exercices': 'Exercices',
+                'annales': 'Annales',
+                'devoirs': 'Devoirs'
+            };
+            return labels[category] || category;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('fr-FR');
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        // Télécharger une ressource
+        function downloadResource(filename, title) {
+            const link = document.createElement('a');
+            link.href = `/uploads/${filename}`;
+            link.download = title + '.pdf';
+            link.click();
+        }
+
+        // Prévisualiser une ressource
+        function previewResource(filename, title) {
+            document.getElementById('pdf-modal-title').textContent = title;
+            document.getElementById('pdf-viewer-frame').src = `/uploads/${filename}`;
+            document.getElementById('pdf-modal').style.display = 'flex';
+        }
+
+        function closePdfModal() {
+            document.getElementById('pdf-modal').style.display = 'none';
+            document.getElementById('pdf-viewer-frame').src = '';
+        }
+
+        // Supprimer une ressource (admin uniquement)
+        function deleteResource(resourceId, title) {
+            if (!isAdminLoggedIn) {
+                showMessage('Accès non autorisé.', 'error');
+                return;
+            }
+            
+            if (!confirm(`Êtes-vous sûr de vouloir supprimer "${title}" ?`)) {
+                return;
+            }
+            
+            fetch(`/admin/delete-resource/${resourceId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('Ressource supprimée avec succès.', 'success');
+                    loadResources(true);
+                } else {
+                    showMessage(data.error || 'Erreur lors de la suppression', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('Erreur lors de la suppression.', 'error');
+            });
+        }
+
+        // Filtrage des ressources
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Mettre à jour les boutons actifs
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.dataset.filter;
+                const cards = document.querySelectorAll('.resource-card');
+                
+                cards.forEach(card => {
+                    if (filter === 'all' || card.dataset.level === filter) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
         // Function to show success/error messages
         function showMessage(message, type) {
             // Remove existing messages
-            const existingMessages = document.querySelectorAll('.success-message, .error-message');
+            const existingMessages = document.querySelectorAll('.success-message, .error-message, .info-message');
             existingMessages.forEach(msg => msg.remove());
             
             // Create new message
             const messageDiv = document.createElement('div');
-            messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+            messageDiv.className = type === 'success' ? 'success-message' : 
+                                  type === 'info' ? 'info-message' : 'error-message';
             messageDiv.textContent = message;
             messageDiv.style.display = 'block';
             messageDiv.style.opacity = '0';
             messageDiv.style.transform = 'translateY(-10px)';
             messageDiv.style.transition = 'all 0.3s ease';
             
-            // Insert before the form
-            const form = document.getElementById('contactForm');
-            form.parentNode.insertBefore(messageDiv, form);
+            // Insert at top of body
+            document.body.insertBefore(messageDiv, document.body.firstChild);
             
             // Trigger fade in
             setTimeout(() => {
@@ -445,6 +880,7 @@
         // Initialize animations when page loads
         document.addEventListener('DOMContentLoaded', function() {
             animateStats();
+            loadResources(); // Charger les ressources au démarrage
             
             // Add loading animation to pricing cards
             const pricingCards = document.querySelectorAll('.pricing-card');
@@ -469,7 +905,7 @@
         }
 
         // Add smooth reveal animations for sections
-        const revealElements = document.querySelectorAll('.about, .pricing, .contact');
+        const revealElements = document.querySelectorAll('.about, .resources, .pricing, .contact');
         const revealObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -514,6 +950,28 @@
             link.addEventListener('mouseleave', function() {
                 this.style.transform = 'translateY(0)';
             });
+        });
+
+        // Fermer les modals en cliquant à l'extérieur
+        window.addEventListener('click', function(e) {
+            if (e.target === document.getElementById('admin-login-modal')) {
+                closeAdminLogin();
+            }
+            if (e.target === document.getElementById('pdf-modal')) {
+                closePdfModal();
+            }
+        });
+
+        // Gestion du clavier pour les modals
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (document.getElementById('admin-login-modal').style.display === 'flex') {
+                    closeAdminLogin();
+                }
+                if (document.getElementById('pdf-modal').style.display === 'flex') {
+                    closePdfModal();
+                }
+            }
         });
     </script>
 </body>
